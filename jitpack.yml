@@ -1,1 +1,2 @@
-jdk: corretto-21
+jdk:
+  - openjdk21
