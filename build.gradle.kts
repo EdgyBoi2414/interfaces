@@ -17,6 +17,7 @@ plugins {
     // Kotlin plugin prefers to be applied to parent when it's used in multiple sub-modules.
     kotlin("jvm") version "1.8.21" apply false
     id("com.diffplug.spotless") version "6.18.0"
+    `maven-publish`
 }
 
 group = "org.incendo.interfaces"
@@ -27,6 +28,7 @@ subprojects {
     apply<IndraPlugin>()
     apply<IndraCheckstylePlugin>()
     apply<SpotlessPlugin>()
+    apply<MavenPublishPlugin>()
 
     // Don't publish examples
     if (!name.startsWith("example-")) {
@@ -63,6 +65,18 @@ subprojects {
                         email.set("kscottdev@gmail.com")
                     }
                 }
+            }
+        }
+    }
+
+    publishing {
+        publications {
+            create<MavenPublication>("interfaces") {
+                groupId = "org.incendo.interfaces"
+                artifactId = project.name
+                version = project.version.toString()
+
+                from(components["java"])
             }
         }
     }
