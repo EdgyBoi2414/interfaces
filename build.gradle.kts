@@ -3,25 +3,21 @@ import com.diffplug.gradle.spotless.SpotlessPlugin
 import com.diffplug.gradle.spotless.SpotlessTask
 import net.kyori.indra.IndraCheckstylePlugin
 import net.kyori.indra.IndraPlugin
-import net.kyori.indra.IndraPublishingPlugin
-import net.kyori.indra.repository.sonatypeSnapshots
-import xyz.jpenilla.runpaper.task.RunServerTask
-
+import org.gradle.plugins.signing.Sign
+import org.gradle.plugins.signing.SigningExtension
 plugins {
     alias(libs.plugins.indra)
     alias(libs.plugins.indra.publishing) apply false
-    alias(libs.plugins.indra.publishing.sonatype)
     alias(libs.plugins.indra.checkstyle) apply false
-    alias(libs.plugins.runPaper) apply false
 
     // Kotlin plugin prefers to be applied to parent when it's used in multiple sub-modules.
-    kotlin("jvm") version "1.8.21" apply false
+    kotlin("jvm") version "1.9.25" apply false
     id("com.diffplug.spotless") version "6.18.0"
     `maven-publish`
 }
 
 group = "org.incendo.interfaces"
-version = "1.0.1-SNAPSHOT"
+version = "1.1.0"
 description = "A builder-style user interface library."
 
 subprojects {
@@ -30,15 +26,9 @@ subprojects {
     apply<SpotlessPlugin>()
     apply<MavenPublishPlugin>()
 
-    // Don't publish examples
-    if (!name.startsWith("example-")) {
-        apply<IndraPublishingPlugin>()
-    }
-
     repositories {
         mavenCentral()
-        sonatypeSnapshots()
-        maven("https://papermc.io/repo/repository/maven-public/")
+        maven("https://repo.papermc.io/repository/maven-public/")
     }
 
     dependencies {
@@ -49,8 +39,8 @@ subprojects {
         mitLicense()
 
         javaVersions {
-            minimumToolchain(21)
-            target(21)
+            minimumToolchain(25)
+            target(25)
         }
 
         github("incendo", "interfaces") {
@@ -87,9 +77,11 @@ subprojects {
         }
     }
 
-    // Configure any existing RunServerTasks
-    tasks.withType<RunServerTask> {
-        minecraftVersion("1.19.4")
-        jvmArgs("-Dio.papermc.paper.suppress.sout.nags=true")
+    // Disable GPG signing for local builds
+    extensions.findByType<SigningExtension>()?.apply {
+        isRequired = false
     }
+    tasks.withType<Sign>().configureEach { enabled = false }
+
+
 }
