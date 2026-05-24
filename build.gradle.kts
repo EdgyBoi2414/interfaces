@@ -21,6 +21,8 @@ version = "1.1.0"
 description = "A builder-style user interface library."
 
 subprojects {
+    version = rootProject.version
+
     apply<IndraPlugin>()
     apply<IndraCheckstylePlugin>()
     apply<SpotlessPlugin>()
